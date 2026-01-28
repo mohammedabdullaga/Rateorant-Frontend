@@ -2,8 +2,23 @@
 
 .restaurant-form-main {
   flex: 1;
-  background: linear-gradient(to bottom, #f3f4f6, #f0f1f3);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   padding: 3rem 1rem;
+  min-height: 100vh;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .restaurant-form-container {
@@ -237,4 +252,104 @@
   .restaurant-form-cancel-btn {
     width: 100%;
   }
+}
+
+.restaurant-form-help-text {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.restaurant-form-location-input-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.restaurant-form-location-input-wrapper .restaurant-form-input {
+  flex: 1;
+  margin: 0;
+}
+
+.restaurant-form-map-button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  color: white;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.restaurant-form-map-button:hover:not(:disabled) {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.restaurant-form-map-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.restaurant-form-map-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.restaurant-form-map-preview {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(79, 70, 229, 0.08));
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.restaurant-form-map-preview-header {
+  margin-bottom: 1rem;
+}
+
+.restaurant-form-map-preview-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 0.5rem;
+}
+
+.restaurant-form-map-coordinates {
+  font-size: 0.875rem;
+  color: #cbd5e1;
+  font-family: 'Courier New', monospace;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border-left: 3px solid #667eea;
+}
+
+.restaurant-form-map-preview-image {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.restaurant-form-map-iframe {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }

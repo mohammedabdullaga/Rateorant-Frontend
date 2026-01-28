@@ -11,6 +11,7 @@ const NavBar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const notificationRef = useRef(null);
 
   const updateNotifications = async () => {
@@ -93,6 +94,14 @@ const NavBar = () => {
     navigate('/');
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery('');
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -104,6 +113,20 @@ const NavBar = () => {
 
         {user ? (
           <>
+            {/* Search Bar for Users */}
+            {user.role === 'user' && (
+              <form onSubmit={handleSearch} className="navbar-search-form">
+                <input
+                  type="text"
+                  placeholder="Search restaurants..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="navbar-search-input"
+                />
+                <button type="submit" className="navbar-search-button">🔍</button>
+              </form>
+            )}
+
             {/* User Info and Notifications */}
             <div className="navbar-content">
               <div className="navbar-user-info">
