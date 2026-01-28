@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import { UserContext } from '../../contexts/UserContext';
 import * as restaurantService from '../../services/restaurantService';
 import * as categoryService from '../../services/categoryService';
+import './RestaurantForm.css';
 
 const RestaurantForm = () => {
   const { restaurantId } = useParams();
@@ -124,43 +125,43 @@ const RestaurantForm = () => {
     }
   };
 
-  if (loading) return <main className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></main>;
+  if (loading) return <main className="restaurant-form-loading"><div className="restaurant-form-spinner"></div></main>;
 
   return (
-    <main className="flex-1 bg-gradient-to-b from-slate-50 to-slate-100 py-12 px-4">
-      <div className="max-w-3xl mx-auto">
+    <main className="restaurant-form-main">
+      <div className="restaurant-form-container">
         {/* Back Button */}
         <button 
           onClick={() => navigate('/')}
-          className="mb-8 flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-semibold text-lg transition-colors"
+          className="restaurant-form-back-button"
         >
           ← Back to Dashboard
         </button>
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">
+        <div className="restaurant-form-header">
+          <h1 className="restaurant-form-title">
             {restaurantId ? 'Edit Restaurant' : 'Add New Restaurant'}
           </h1>
-          <p className="text-slate-600">
+          <p className="restaurant-form-subtitle">
             Fill in the details below to {restaurantId ? 'update your' : 'create a new'} restaurant listing
           </p>
         </div>
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 bg-red-50 border-l-4 border-red-600 p-4 rounded-lg">
-            <p className="text-red-700 font-semibold">Error</p>
-            <p className="text-red-600 text-sm mt-1">{error}</p>
+          <div className="restaurant-form-error">
+            <p className="restaurant-form-error-title">Error</p>
+            <p className="restaurant-form-error-message">{error}</p>
           </div>
         )}
 
         {/* Form Card */}
-        <div className="card bg-white rounded-lg shadow-lg border border-slate-200">
-          <form onSubmit={handleSubmit} className="space-y-6 p-8">
+        <div className="restaurant-form-card">
+          <form onSubmit={handleSubmit} className="restaurant-form">
             {/* Restaurant Name */}
-            <div className="input-group">
-              <label htmlFor="name" className="input-label">
+            <div className="restaurant-form-group">
+              <label htmlFor="name" className="restaurant-form-label">
                 Restaurant Name
               </label>
               <input
@@ -171,13 +172,13 @@ const RestaurantForm = () => {
                 onChange={handleInputChange}
                 required
                 placeholder="e.g., The Italian Corner"
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
+                className="restaurant-form-input"
               />
             </div>
 
             {/* Description */}
-            <div className="input-group">
-              <label htmlFor="description" className="input-label">
+            <div className="restaurant-form-group">
+              <label htmlFor="description" className="restaurant-form-label">
                 Description
               </label>
               <textarea
@@ -187,13 +188,13 @@ const RestaurantForm = () => {
                 onChange={handleInputChange}
                 rows="5"
                 placeholder="Describe your restaurant, ambiance, specialties, and what makes it unique..."
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 resize-vertical"
+                className="restaurant-form-textarea"
               />
             </div>
 
             {/* Location */}
-            <div className="input-group">
-              <label htmlFor="location" className="input-label">
+            <div className="restaurant-form-group">
+              <label htmlFor="location" className="restaurant-form-label">
                 Location
               </label>
               <input
@@ -204,13 +205,13 @@ const RestaurantForm = () => {
                 onChange={handleInputChange}
                 required
                 placeholder="e.g., 123 Main Street, Downtown"
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
+                className="restaurant-form-input"
               />
             </div>
 
             {/* Image URL */}
-            <div className="input-group">
-              <label htmlFor="image_url" className="input-label">
+            <div className="restaurant-form-group">
+              <label htmlFor="image_url" className="restaurant-form-label">
                 Image URL
               </label>
               <input
@@ -220,49 +221,47 @@ const RestaurantForm = () => {
                 value={formData.image_url}
                 onChange={handleInputChange}
                 placeholder="https://example.com/restaurant-image.jpg"
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
+                className="restaurant-form-input"
               />
             </div>
 
             {/* Categories */}
-            <div className="input-group">
-              <label className="input-label">
+            <div className="restaurant-form-group">
+              <label className="restaurant-form-label">
                 Categories
               </label>
-              <div className="border border-slate-300 rounded-lg p-4 space-y-3">
+              <div className="restaurant-form-categories">
                 {categories.length > 0 ? (
                   categories.map(category => (
-                    <label key={category.id} className="flex items-center cursor-pointer hover:bg-slate-50 -mx-2 px-2 py-1 rounded transition-colors">
+                    <label key={category.id} className="restaurant-form-category-item">
                       <input
                         type="checkbox"
                         checked={selectedCategories.includes(category.id)}
                         onChange={() => handleCategoryChange(category.id)}
-                        className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer mr-3"
+                        className="restaurant-form-category-input"
                       />
-                      <span className="text-slate-700 font-medium">{category.category}</span>
+                      <span className="restaurant-form-category-label">{category.category}</span>
                     </label>
                   ))
                 ) : (
-                  <p className="text-slate-500 text-sm">No categories available</p>
+                  <p className="restaurant-form-no-categories">No categories available</p>
                 )}
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-4 pt-6 border-t border-slate-200">
+            <div className="restaurant-form-actions">
               <button
                 type="submit"
                 disabled={submitting}
-                className={`btn-success flex-1 py-3 px-6 font-semibold text-lg ${
-                  submitting ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'
-                }`}
+                className="restaurant-form-submit-btn"
               >
                 {submitting ? '⏳ Saving...' : restaurantId ? '✏️ Update Restaurant' : '➕ Add Restaurant'}
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/')}
-                className="btn-secondary flex-1 py-3 px-6 font-semibold text-lg"
+                className="restaurant-form-cancel-btn"
               >
                 Cancel
               </button>

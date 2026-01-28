@@ -1,8 +1,11 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
+import * as reviewService from '../../services/reviewService';
+import '../ReviewForm/ReviewForm.css';
 
 const ReviewList = ({ reviews, restaurantId, onReviewsUpdated, isOwner = false }) => {
   const { user } = useContext(UserContext);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, reviewId: null });
 
   const getStarRating = (rating) => {
     return '⭐'.repeat(rating);
@@ -18,10 +21,35 @@ const ReviewList = ({ reviews, restaurantId, onReviewsUpdated, isOwner = false }
     });
   };
 
+  const openDeleteModal = (reviewId) => {
+    setDeleteModal({ isOpen: true, reviewId });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({ isOpen: false, reviewId: null });
+  };
+
+  const confirmDelete = async () => {
+    const reviewId = deleteModal.reviewId;
+    try {
+      const token = localStorage.getItem('token');
+      await reviewService.deleteReview(restaurantId, reviewId, token);
+      
+      // Update the reviews list by filtering out the deleted review
+      const updatedReviews = reviews.filter(review => review.id !== reviewId);
+      onReviewsUpdated(updatedReviews);
+      closeDeleteModal();
+    } catch (err) {
+      console.error('Error deleting review:', err);
+      alert('Failed to delete review');
+      closeDeleteModal();
+    }
+  };
+
   if (!reviews || reviews.length === 0) {
     return (
-      <div className="card text-center py-12 bg-slate-50 border border-slate-200 rounded-lg">
-        <p className="text-slate-600 text-sm font-medium">
+      <div className="review-empty">
+        <p>
           No reviews yet. {!isOwner ? 'Be the first to review this restaurant!' : ''}
         </p>
       </div>
@@ -29,53 +57,49 @@ const ReviewList = ({ reviews, restaurantId, onReviewsUpdated, isOwner = false }
   }
 
   return (
-    <div className="w-full">
-      <div className="mb-8">
-        <h3 className="text-xl font-bold text-slate-900">Reviews ({reviews.length})</h3>
-      </div>
+    <div className="review-list-container">
+      <h3 className="review-list-header">Reviews ({reviews.length})</h3>
       
-      <div className="space-y-5">
+      <div className="review-list">
         {reviews.map(review => (
           <div 
             key={review.id} 
-            className={`card bg-white rounded-lg border p-6 transition-shadow hover:shadow-md ${
-              isOwner ? 'border-l-4 border-l-amber-500' : 'border border-slate-200 border-l-indigo-500'
-            }`}
+            className={`review-item ${isOwner ? 'owner-review' : ''}`}
           >
-            <div className="flex justify-between items-start gap-4 mb-4">
-              <div className="flex-1">
-                <div className="text-2xl mb-2 text-amber-400">
+            <div className="review-item-header">
+              <div className="review-item-info">
+                <div className="review-item-rating">
                   {'★'.repeat(review.rating)}
                 </div>
-                <p className="text-slate-700 text-sm font-semibold">
+                <p className="review-item-score">
                   Rating: {review.rating} / 5
                 </p>
                 {isOwner && (
-                  <p className="text-slate-600 text-xs mt-2">
+                  <p className="review-item-user-id">
                     User ID: {review.user_id}
                   </p>
                 )}
               </div>
-              <time className="text-slate-500 text-xs font-medium whitespace-nowrap">
+              <time className="review-item-date">
                 {formatDate(review.created_at)}
               </time>
             </div>
 
             {review.comment && (
-              <div className="bg-slate-50 px-4 py-3 rounded-lg border-l-4 border-l-indigo-500 mt-4">
-                <p className="text-slate-700 text-sm leading-relaxed">
+              <div className="review-item-comment">
+                <p className="review-item-comment-text">
                   {review.comment}
                 </p>
               </div>
             )}
 
-            {/* Edit/Delete buttons only for user's own review, not for owner */}
+            {/* Delete button only for user's own review, not for owner */}
             {!isOwner && user && String(user.id) === String(review.user_id) && (
-              <div className="mt-4 flex gap-2">
-                <button className="text-xs font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200 px-3 py-1.5 rounded transition-colors">
-                  Edit
-                </button>
-                <button className="text-xs font-semibold bg-red-100 text-red-800 hover:bg-red-200 px-3 py-1.5 rounded transition-colors">
+              <div className="review-item-actions">
+                <button 
+                  className="review-item-action-button delete"
+                  onClick={() => openDeleteModal(review.id)}
+                >
                   Delete
                 </button>
               </div>
@@ -83,8 +107,47 @@ const ReviewList = ({ reviews, restaurantId, onReviewsUpdated, isOwner = false }
           </div>
         ))}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">Delete Review</h3>
+              <button 
+                className="modal-close-btn"
+                onClick={closeDeleteModal}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <p className="modal-message">
+                Are you sure you want to delete this review? This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="modal-footer">
+              <button 
+                className="modal-button modal-button-cancel"
+                onClick={closeDeleteModal}
+              >
+                Cancel
+              </button>
+              <button 
+                className="modal-button modal-button-delete"
+                onClick={confirmDelete}
+              >
+                Delete Review
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
+};  
 
 export default ReviewList;

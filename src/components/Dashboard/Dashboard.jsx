@@ -6,6 +6,7 @@ import { UserContext } from '../../contexts/UserContext';
 import * as restaurantService from '../../services/restaurantService';
 import * as favoritesService from '../../services/favoritesService';
 import * as reviewService from '../../services/reviewService';
+import './Dashboard.css';
 
 const Dashboard = ({ role = 'user' }) => {
   // Access the user object from UserContext
@@ -150,17 +151,17 @@ const Dashboard = ({ role = 'user' }) => {
     }
   };
 
-  if (loading) return <main className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></main>;
+  if (loading) return <main className="dashboard-loading"><div className="dashboard-spinner"></div></main>;
 
   return (
-    <main className="flex-1 bg-gradient-to-b from-slate-50 to-slate-100 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main className="dashboard-main">
+      <div className="dashboard-container">
         {/* Welcome Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 mb-3">
+        <div className="dashboard-header">
+          <h1 className="dashboard-title">
             Welcome back, {user?.username}!
           </h1>
-          <p className="text-lg text-slate-600">
+          <p className="dashboard-subtitle">
             {role === 'owner' 
               ? 'Manage and monitor your restaurant listings' 
               : 'Discover and rate the best restaurants in your area'}
@@ -169,9 +170,9 @@ const Dashboard = ({ role = 'user' }) => {
 
         {/* Add Restaurant Button for Owners */}
         {role === 'owner' && (
-          <div className="mb-10">
-            <Link to="/add-restaurant" className="inline-block">
-              <button className="btn-success px-8 py-3 text-lg font-semibold shadow-md hover:shadow-lg transition-shadow">
+          <div className="dashboard-add-button-container">
+            <Link to="/add-restaurant" className="dashboard-add-button">
+              <button className="btn-success" style={{ padding: '0.75rem 2rem', fontSize: '1.125rem', fontWeight: '600', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
                 + Add New Restaurant
               </button>
             </Link>
@@ -180,78 +181,77 @@ const Dashboard = ({ role = 'user' }) => {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-8 bg-red-50 border-l-4 border-red-600 p-4 rounded-lg">
-            <p className="font-semibold text-red-900">Error</p>
-            <p className="text-red-700 text-sm mt-1">{error}</p>
+          <div className="dashboard-error">
+            <p className="dashboard-error-title">Error</p>
+            <p className="dashboard-error-message">{error}</p>
           </div>
         )}
 
         {/* Restaurants Grid */}
         {Array.isArray(restaurants) && restaurants.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="dashboard-grid">
             {restaurants.map(restaurant => (
               <div 
                 key={restaurant.id} 
-                className="card-hover flex flex-col overflow-hidden bg-white rounded-lg shadow-md border border-slate-200 transition-all duration-300"
+                className="dashboard-card"
               >
                 {/* Restaurant Image */}
                 {restaurant.image_url && (
-                  <div className="relative h-48 overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300">
+                  <div className="dashboard-card-image">
                     <img 
                       src={restaurant.image_url} 
-                      alt={restaurant.name} 
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                      alt={restaurant.name}
                     />
                   </div>
                 )}
 
                 {/* Restaurant Content */}
-                <div className="flex-1 p-6 flex flex-col">
+                <div className="dashboard-card-content">
                   {/* Title and Rating */}
-                  <div className="flex justify-between items-start gap-4 mb-4">
-                    <h3 className="text-xl font-bold text-slate-900 line-clamp-2 flex-1">
+                  <div className="dashboard-card-header">
+                    <h3 className="dashboard-card-title">
                       {restaurant.name}
                     </h3>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-lg mb-1">
+                    <div className="dashboard-card-rating">
+                      <div className="dashboard-card-stars">
                         {getRatingStars(calculateAverageRating(restaurant.id))}
                       </div>
-                      <p className="text-xs text-slate-500 font-medium">
+                      <p className="dashboard-card-review-count">
                         {restaurantRatings[restaurant.id]?.count || 0} reviews
                       </p>
                     </div>
                   </div>
 
                   {/* Location */}
-                  <div className="flex items-center gap-2 text-slate-600 mb-4">
-                    <span>📍</span>
-                    <p className="text-sm font-medium">{restaurant.location}</p>
+                  <div className="dashboard-card-location">
+                    <span className="dashboard-card-location-icon">📍</span>
+                    <p className="dashboard-card-location-text">{restaurant.location}</p>
                   </div>
 
                   {/* Description */}
-                  <p className="text-slate-600 text-sm mb-6 line-clamp-3 flex-1 leading-relaxed">
+                  <p className="dashboard-card-description">
                     {restaurant.description}
                   </p>
 
                   {/* Action Buttons */}
                   {role === 'user' && (
-                    <div className="space-y-3">
+                    <div className="dashboard-card-actions">
                       <Link to={`/restaurant/${restaurant.id}`} className="block">
-                        <button className="btn-primary w-full py-2 px-4 text-sm font-semibold">
+                        <button className="btn-primary w-full" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600' }}>
                           View Details
                         </button>
                       </Link>
                       {favorites.includes(restaurant.id) ? (
                         <button 
                           onClick={() => handleRemoveFromFavorites(restaurant.id)}
-                          className="w-full py-2 px-4 bg-red-50 text-red-600 font-semibold rounded-lg border border-red-200 hover:bg-red-100 transition-colors text-sm"
+                          className="dashboard-card-action-button favorite active"
                         >
                           ❤️ Remove from Favorites
                         </button>
                       ) : (
                         <button 
                           onClick={() => handleAddToFavorites(restaurant.id)}
-                          className="w-full py-2 px-4 bg-slate-100 text-slate-600 font-semibold rounded-lg border border-slate-300 hover:bg-slate-200 transition-colors text-sm"
+                          className="dashboard-card-action-button favorite"
                         >
                           🤍 Add to Favorites
                         </button>
@@ -260,23 +260,23 @@ const Dashboard = ({ role = 'user' }) => {
                   )}
 
                   {role === 'owner' && (
-                    <div className="space-y-2">
-                      <div className="grid grid-cols-2 gap-2">
+                    <div className="dashboard-card-actions">
+                      <div className="dashboard-card-action-grid">
                         <Link to={`/edit-restaurant/${restaurant.id}`} className="block">
-                          <button className="w-full py-2 px-3 bg-amber-50 text-amber-600 font-semibold rounded-lg border border-amber-200 hover:bg-amber-100 transition-colors text-sm">
+                          <button className="dashboard-card-action-button edit w-full">
                             ✏️ Edit
                           </button>
                         </Link>
                         <button 
                           onClick={() => handleDeleteRestaurant(restaurant.id)}
-                          className="w-full py-2 px-3 bg-red-50 text-red-600 font-semibold rounded-lg border border-red-200 hover:bg-red-100 transition-colors text-sm"
+                          className="dashboard-card-action-button delete"
                         >
                           🗑️ Delete
                         </button>
                       </div>
                       <Link to={`/restaurant/${restaurant.id}`} className="block">
-                        <button className="btn-success w-full py-2 px-3 text-sm font-semibold">
-                          📊 View Comments
+                        <button className="btn-success dashboard-card-action-button-primary w-full">
+                          View Comments
                         </button>
                       </Link>
                     </div>
@@ -286,19 +286,19 @@ const Dashboard = ({ role = 'user' }) => {
             ))}
           </div>
         ) : (
-          <div className="card text-center py-16 bg-white rounded-lg shadow-md border border-slate-200">
-            <div className="text-6xl mb-4">📭</div>
-            <p className="text-2xl font-bold text-slate-900 mb-2">
+          <div className="dashboard-empty">
+            <div className="dashboard-empty-icon">📭</div>
+            <p className="dashboard-empty-title">
               {role === 'owner' ? 'No restaurants yet' : 'No restaurants available'}
             </p>
-            <p className="text-slate-600 mb-6">
+            <p className="dashboard-empty-message">
               {role === 'owner' 
                 ? 'Create your first restaurant to get started' 
                 : 'Check back soon for new listings'}
             </p>
             {role === 'owner' && (
-              <Link to="/add-restaurant">
-                <button className="btn-success px-8 py-3 font-semibold">
+              <Link to="/add-restaurant" className="dashboard-empty-button">
+                <button className="btn-success" style={{ padding: '0.75rem 2rem', fontWeight: '600' }}>
                   + Create Your First Restaurant
                 </button>
               </Link>
