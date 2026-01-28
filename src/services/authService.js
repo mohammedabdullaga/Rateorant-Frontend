@@ -2,8 +2,21 @@ import axios from 'axios';
 
 const BASE_URL = `${import.meta.env.VITE_BACK_END_SERVER_URL}`
 
-async function signUp(formData) {
+const decodeToken = (token) => {
+  const tokenParts = token.split('.');
+  const encodedPayload = tokenParts[1];
+  const decodedPayload = window.atob(encodedPayload);
+  const parsedPayload = JSON.parse(decodedPayload);
+  
+  return {
+    id: parsedPayload.sub,
+    username: parsedPayload.username,
+    email: parsedPayload.email,
+    role: parsedPayload.role || 'user'
+  };
+};
 
+async function signUp(formData) {
   // Step 1: Send POST request with form data
   const response = await axios.post(`${BASE_URL}/register`, formData);
 
@@ -17,11 +30,7 @@ async function signUp(formData) {
   window.localStorage.setItem('token', token);
 
   // Step 5: Decode the token to get user data
-  const tokenParts = token.split('.');
-  const encodedPayload = tokenParts[1];
-  const decodedPayload = window.atob(encodedPayload);
-  const parsedPayload = JSON.parse(decodedPayload);
-  const user = parsedPayload;
+  const user = decodeToken(token);
 
   // Step 6: Return the user data
   return user;
@@ -41,11 +50,7 @@ async function signIn(formData) {
   window.localStorage.setItem('token', token);
 
   // Step 5: Decode the token to get user data
-  const tokenParts = token.split('.');
-  const encodedPayload = tokenParts[1];
-  const decodedPayload = window.atob(encodedPayload);
-  const parsedPayload = JSON.parse(decodedPayload);
-  const user = parsedPayload
+  const user = decodeToken(token);
 
   // Step 6: Return the user data
   return user;
