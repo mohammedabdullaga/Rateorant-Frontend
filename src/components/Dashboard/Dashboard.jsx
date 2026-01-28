@@ -6,6 +6,7 @@ import { UserContext } from '../../contexts/UserContext';
 import * as restaurantService from '../../services/restaurantService';
 import * as favoritesService from '../../services/favoritesService';
 import * as reviewService from '../../services/reviewService';
+import * as categoryService from '../../services/categoryService';
 import './Dashboard.css';
 
 const Dashboard = ({ role = 'user' }) => {
@@ -15,8 +16,22 @@ const Dashboard = ({ role = 'user' }) => {
   
   // Get the refreshed parameter from URL query string
   const refreshed = searchParams.get('refreshed');
+  
+  // Get search query from URL
+  useEffect(() => {
+    const search = searchParams.get('search');
+    if (search) {
+      setSearchQuery(decodeURIComponent(search));
+      // Reset category to 'all' so it fetches all restaurants for search
+      setSelectedCategory('all');
+    }
+  }, [searchParams]);
 
   const [restaurants, setRestaurants] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedRating, setSelectedRating] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -25,59 +40,27 @@ const Dashboard = ({ role = 'user' }) => {
   // useEffect runs after the component renders
   // This is where we perform side effects like API calls
   useEffect(() => {
-    const fetchData = async () => {
+    // load categories for filter
+    const fetchCategories = async () => {
       try {
-        setLoading(true);
-        
-        // Fetch all restaurants
-        const allRestaurants = await restaurantService.getAllRestaurants();
-        
-        // Ensure it's an array
-        if (!Array.isArray(allRestaurants)) {
-          throw new Error('Invalid restaurants data format');
-        }
-        
-        // If it's a regular user, show all restaurants
-        if (role === 'user') {
-          setRestaurants(allRestaurants);
-          
-          // Also fetch their favorites
-          if (user) {
-            const userFavorites = await favoritesService.getAllFavorites(localStorage.getItem('token'));
-            
-            // Ensure it's an array and extract restaurant IDs
-            if (Array.isArray(userFavorites)) {
-              setFavorites(userFavorites.map(fav => fav.restaurant_id));
-            } else {
-              setFavorites([]);
-            }
-          }
-        }
-        // If it's an owner, filter restaurants to only show their own
-        else if (role === 'owner' && user) {
-          console.log('Filtering restaurants for owner. User ID:', user.id);
-          console.log('All restaurants:', allRestaurants);
-          
-          const ownerRestaurants = allRestaurants.filter(rest => {
-            const match = String(rest.owner_id) === String(user.id);
-            console.log(`Comparing owner_id ${rest.owner_id} with user.id ${user.id}: ${match}`);
-            return match;
-          });
-          
-          console.log('Owner restaurants after filter:', ownerRestaurants);
-          setRestaurants(ownerRestaurants);
-        }
+        const allCategories = await categoryService.getAllCategories();
+        // Accept several possible response shapes: array, { categories: [] }, or wrapped data
+        let list = [];
+        if (Array.isArray(allCategories)) list = allCategories;
+        else if (Array.isArray(allCategories.categories)) list = allCategories.categories;
+        else if (Array.isArray(allCategories.data)) list = allCategories.data;
+        else list = [];
+        setCategories(list);
+        console.debug('Loaded categories for filter:', list);
       } catch (err) {
-        console.error('Error loading dashboard data:', err);
-        setError(err.message || 'Failed to load data');
-      } finally {
-        setLoading(false);
+        console.error('Error loading categories:', err);
       }
-    }
+    };
 
-    if (user) {
-      fetchData();
-    }
+    fetchCategories();
+
+    // we only load categories here; restaurants are loaded by the selectedCategory effect below
+    // (keeps a single source-of-truth: API fetch per selected category)
 
   }, [user, role, refreshed]);
 
@@ -87,6 +70,58 @@ const Dashboard = ({ role = 'user' }) => {
       fetchRestaurantRatings();
     }
   }, [restaurants]);
+
+  // Load restaurants from API when selectedCategory changes (or on mount/refresh)
+  useEffect(() => {
+    const loadByCategory = async () => {
+      try {
+        setLoading(true);
+        let list = [];
+
+        if (selectedCategory === 'all') {
+          list = await restaurantService.getAllRestaurants();
+        } else {
+          list = await restaurantService.getRestaurantsByCategory(selectedCategory);
+        }
+
+        // Normalize possible wrapped responses
+        if (!Array.isArray(list)) {
+          if (Array.isArray(list.restaurants)) list = list.restaurants;
+          else if (Array.isArray(list.data)) list = list.data;
+          else list = [];
+        }
+
+        // If owner, only show restaurants belonging to that owner
+        if (role === 'owner' && user) {
+          list = list.filter(r => String(r.owner_id) === String(user.id));
+        }
+
+        setRestaurants(list);
+
+        // fetch favorites once if user is present
+        if (user) {
+          try {
+            const userFavorites = await favoritesService.getAllFavorites(localStorage.getItem('token'));
+            if (Array.isArray(userFavorites)) {
+              setFavorites(userFavorites.map(fav => fav.restaurant_id));
+            } else {
+              setFavorites([]);
+            }
+          } catch (err) {
+            console.error('Error loading favorites:', err);
+            setFavorites([]);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading restaurants for category:', err);
+        setError(err.message || 'Failed to load restaurants');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) loadByCategory();
+  }, [selectedCategory, user, role, refreshed]);
 
   const handleAddToFavorites = async (restaurantId) => {
     try {
@@ -125,6 +160,21 @@ const Dashboard = ({ role = 'user' }) => {
     const rating = restaurantRatings[restaurantId];
     if (!rating || rating.count === 0) return 0;
     return (rating.total / rating.count).toFixed(1);
+  };
+
+  const handleCategorySelect = (e) => {
+    setSelectedCategory(e.target.value);
+  };
+
+  const handleRatingSelect = (e) => {
+    setSelectedRating(e.target.value);
+  };
+
+  const handleSeeAllRestaurants = () => {
+    setSearchQuery('');
+    setSelectedCategory('all');
+    setSelectedRating('all');
+    navigate('/');
   };
 
   const getRatingStars = (rating) => {
@@ -187,10 +237,48 @@ const Dashboard = ({ role = 'user' }) => {
           </div>
         )}
 
+        {/* Filters Row */}
+        <div className="dashboard-filter-row">
+          <label className="dashboard-filter-label">Filter by category:</label>
+          <select className="dashboard-filter-select" value={selectedCategory} onChange={handleCategorySelect}>
+            <option value="all">All Categories</option>
+            {categories.map(cat => (
+              <option key={cat.id ?? cat.category} value={cat.id ? String(cat.id) : cat.category}>{cat.category}</option>
+            ))}
+          </select>
+
+          <label className="dashboard-filter-label" style={{ marginLeft: '2rem' }}>Filter by stars:</label>
+          <select className="dashboard-filter-select" value={selectedRating} onChange={handleRatingSelect}>
+            <option value="all">All Ratings</option>
+            <option value="4">4 ⭐ & up</option>
+            <option value="3">3 ⭐ & up</option>
+            <option value="2">2 ⭐ & up</option>
+            <option value="1">1 ⭐ & up</option>
+          </select>
+
+          {searchQuery && (
+            <button onClick={handleSeeAllRestaurants} className="dashboard-see-all-button">
+              ✕ See All Restaurants
+            </button>
+          )}
+        </div>
+
         {/* Restaurants Grid */}
         {Array.isArray(restaurants) && restaurants.length > 0 ? (
-          <div className="dashboard-grid">
-            {restaurants.map(restaurant => (
+          <>
+            <div className="dashboard-grid">
+              {restaurants
+                .filter(r => {
+                  // Filter by search query
+                  if (searchQuery && !r.name.toLowerCase().includes(searchQuery.toLowerCase()) && !r.location.toLowerCase().includes(searchQuery.toLowerCase())) {
+                    return false;
+                  }
+                  // Filter by rating
+                  if (selectedRating === 'all') return true;
+                  const rating = calculateAverageRating(r.id);
+                  return parseFloat(rating) >= parseFloat(selectedRating);
+                })
+                .map(restaurant => (
               <div 
                 key={restaurant.id} 
                 className="dashboard-card"
@@ -285,6 +373,7 @@ const Dashboard = ({ role = 'user' }) => {
               </div>
             ))}
           </div>
+          </>
         ) : (
           <div className="dashboard-empty">
             <div className="dashboard-empty-icon">📭</div>
