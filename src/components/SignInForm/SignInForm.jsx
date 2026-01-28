@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router';
 import { signIn } from '../../services/authService';
 
 import { UserContext } from '../../contexts/UserContext';
+import './SignInForm.css';
 
 const SignInForm = () => {
   const navigate = useNavigate();
@@ -31,25 +32,25 @@ const SignInForm = () => {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-md">
+    <main className="auth-main">
+      <div className="auth-container">
         {/* Card */}
-        <div className="card bg-white rounded-lg shadow-lg border border-slate-200">
+        <div className="auth-card">
           {/* Header */}
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h1>
-            <p className="text-slate-600">Sign in to your Rateorant account</p>
+          <div className="auth-header">
+            <h1 className="auth-title">Welcome Back</h1>
+            <p className="auth-subtitle">Sign in to your Rateorant account</p>
           </div>
 
           {/* Error Message */}
           {message && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700 text-sm font-medium">{message}</p>
+            <div className="auth-error">
+              <p className="auth-error-message">{message}</p>
             </div>
           )}
 
           {/* Form */}
-          <form autoComplete="off" onSubmit={handleSubmit} className="space-y-5">
+          <form autoComplete="off" onSubmit={handleSubmit} className="auth-form">
             <div className="input-group">
               <label htmlFor="username" className="input-label">
                 Username
@@ -63,7 +64,7 @@ const SignInForm = () => {
                 onChange={handleChange}
                 required
                 placeholder="Enter your username"
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
+                className="auth-input"
               />
             </div>
 
@@ -80,22 +81,22 @@ const SignInForm = () => {
                 onChange={handleChange}
                 required
                 placeholder="Enter your password"
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"
+                className="auth-input"
               />
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-3 pt-4">
+            <div className="auth-buttons">
               <button 
                 type="submit"
-                className="btn-primary flex-1 py-2 font-semibold"
+                className="btn-primary auth-button"
               >
                 Sign In
               </button>
               <button 
                 type="button"
                 onClick={() => navigate('/')}
-                className="btn-secondary flex-1 py-2 font-semibold"
+                className="btn-secondary auth-button"
               >
                 Cancel
               </button>
@@ -103,18 +104,14 @@ const SignInForm = () => {
           </form>
 
           {/* Footer Links */}
-          <div className="mt-6 pt-6 border-t border-slate-200 text-center text-sm">
-            <p className="text-slate-600">
+          <div className="auth-link">
+            <p>
               New to Rateorant?{' '}
-              <Link to="/sign-up" className="text-indigo-600 font-semibold hover:text-indigo-700">
-                Sign up as a user
-              </Link>
+              <Link to="/sign-up">Sign up as a user</Link>
             </p>
-            <p className="text-slate-600 mt-2">
+            <p style={{ marginTop: '0.5rem' }}>
               Or{' '}
-              <Link to="/owner-sign-up" className="text-indigo-600 font-semibold hover:text-indigo-700">
-                sign up for restaurant owners
-              </Link>
+              <Link to="/owner-sign-up">sign up for restaurant owners</Link>
             </p>
           </div>
         </div>

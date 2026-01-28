@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import * as reviewService from '../../services/reviewService';
 import * as backendNotificationService from '../../services/backendNotificationService';
+import './ReviewForm.css';
 
 const ReviewForm = ({ restaurantId, restaurantName, restaurantOwnerId, onReviewAdded }) => {
   const { user } = useContext(UserContext);
@@ -76,9 +77,9 @@ const ReviewForm = ({ restaurantId, restaurantName, restaurantOwnerId, onReviewA
 
   if (!user) {
     return (
-      <div className="card bg-indigo-50 border border-indigo-200 rounded-lg p-6">
-        <div className="text-center">
-          <p className="text-indigo-700 text-sm font-medium">
+      <div className="review-form">
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#4f46e5', fontSize: '0.875rem', fontWeight: '500' }}>
             Please sign in to leave a review
           </p>
         </div>
@@ -87,22 +88,22 @@ const ReviewForm = ({ restaurantId, restaurantName, restaurantOwnerId, onReviewA
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card bg-white border border-slate-200 rounded-lg p-8">
-      <h3 className="text-2xl font-bold text-slate-900 mb-6">Leave a Review</h3>
+    <form onSubmit={handleSubmit} className="review-form">
+      <h3 className="review-form-title">Leave a Review</h3>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-          <p className="text-red-700 text-sm font-semibold">{error}</p>
+        <div className="review-form-error">
+          <p className="review-form-error-message">{error}</p>
         </div>
       )}
       {success && (
-        <div className="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 rounded">
-          <p className="text-emerald-700 text-sm font-semibold">{success}</p>
+        <div className="review-form-success">
+          <p className="review-form-success-message">{success}</p>
         </div>
       )}
 
-      <div className="mb-6">
-        <label htmlFor='rating' className="input-label block text-slate-900 font-semibold mb-2">
+      <div className="review-form-group">
+        <label htmlFor='rating' className="review-form-label">
           Rating
         </label>
         <select
@@ -111,7 +112,7 @@ const ReviewForm = ({ restaurantId, restaurantName, restaurantOwnerId, onReviewA
           value={formData.rating}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm font-medium focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-colors"
+          className="review-form-select"
         >
           <option value={5}>★★★★★ - Excellent</option>
           <option value={4}>★★★★☆ - Good</option>
@@ -121,8 +122,8 @@ const ReviewForm = ({ restaurantId, restaurantName, restaurantOwnerId, onReviewA
         </select>
       </div>
 
-      <div className="mb-6">
-        <label htmlFor='comment' className="input-label block text-slate-900 font-semibold mb-2">
+      <div className="review-form-group">
+        <label htmlFor='comment' className="review-form-label">
           Comment (Optional)
         </label>
         <textarea
@@ -132,14 +133,14 @@ const ReviewForm = ({ restaurantId, restaurantName, restaurantOwnerId, onReviewA
           onChange={handleChange}
           placeholder='Share your experience, what did you like or dislike?'
           rows='4'
-          className="w-full px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 resize-vertical"
+          className="review-form-textarea"
         />
       </div>
 
       <button 
         type='submit' 
         disabled={loading} 
-        className="btn-primary w-full"
+        className="btn-primary review-form-button"
       >
         {loading ? 'Submitting...' : 'Submit Review'}
       </button>

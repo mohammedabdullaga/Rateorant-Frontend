@@ -6,6 +6,7 @@ import * as restaurantService from '../../services/restaurantService';
 import * as reviewService from '../../services/reviewService';
 import ReviewForm from '../ReviewForm/ReviewForm';
 import ReviewList from '../ReviewList/ReviewList';
+import './RestaurantDetail.css';
 
 const RestaurantDetail = () => {
   const { restaurantId } = useParams();
@@ -47,58 +48,57 @@ const RestaurantDetail = () => {
     setReviews([...reviews, newReview]);
   };
 
-  if (loading) return <main className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></main>;
-  if (error) return <main className="py-12 px-4"><div className="text-center text-red-600 font-semibold">{error}</div></main>;
-  if (!restaurant) return <main className="py-12 px-4"><div className="text-center text-slate-600 font-semibold">Restaurant not found</div></main>;
+  if (loading) return <main className="restaurant-detail-loading"><div className="restaurant-detail-spinner"></div></main>;
+  if (error) return <main className="restaurant-detail-error">{error}</main>;
+  if (!restaurant) return <main className="restaurant-detail-not-found">Restaurant not found</main>;
 
   return (
-    <main className="bg-gradient-to-b from-slate-50 to-slate-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <main className="restaurant-detail-main">
+      <div className="restaurant-detail-container">
         {/* Back Button */}
         <button 
           onClick={() => navigate('/')}
-          className="mb-8 flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-semibold text-lg transition-colors"
+          className="restaurant-detail-back-button"
         >
           ← Back to Restaurants
         </button>
 
         {/* Restaurant Card */}
-        <div className="card bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
+        <div className="restaurant-detail-card">
           {/* Hero Image */}
           {restaurant.image_url && (
-            <div className="w-full h-96 overflow-hidden">
+            <div className="restaurant-detail-image">
               <img 
                 src={restaurant.image_url} 
                 alt={restaurant.name}
-                className="w-full h-full object-cover"
               />
             </div>
           )}
 
           {/* Restaurant Info */}
-          <div className="p-8">
-            <h1 className="text-4xl font-bold text-slate-900 mb-4">{restaurant.name}</h1>
+          <div className="restaurant-detail-info">
+            <h1 className="restaurant-detail-title">{restaurant.name}</h1>
             
             {/* Location */}
-            <div className="flex items-center gap-3 text-slate-700 mb-4">
-              <span className="text-2xl">📍</span>
-              <p className="text-lg">{restaurant.location}</p>
+            <div className="restaurant-detail-location">
+              <span className="restaurant-detail-location-icon">📍</span>
+              <p className="restaurant-detail-location-text">{restaurant.location}</p>
             </div>
 
             {/* Description */}
-            <p className="text-slate-600 text-lg leading-relaxed mb-6">
+            <p className="restaurant-detail-description">
               {restaurant.description}
             </p>
 
             {/* Categories */}
             {restaurant.categories && restaurant.categories.length > 0 && (
-              <div className="mb-8">
-                <h3 className="font-semibold text-slate-900 mb-3">Categories</h3>
-                <div className="flex flex-wrap gap-2">
+              <div className="restaurant-detail-categories">
+                <h3 className="restaurant-detail-categories-title">Categories</h3>
+                <div className="restaurant-detail-categories-list">
                   {restaurant.categories.map((cat, idx) => (
                     <span 
                       key={idx}
-                      className="badge bg-indigo-100 text-indigo-700"
+                      className="restaurant-detail-badge"
                     >
                       {cat.category}
                     </span>
@@ -109,22 +109,22 @@ const RestaurantDetail = () => {
           </div>
 
           {/* Reviews Section */}
-          <div className="border-t border-slate-200 p-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Reviews & Ratings</h2>
+          <div className="restaurant-detail-reviews-section">
+            <h2 className="restaurant-detail-reviews-title">Reviews & Ratings</h2>
 
             {/* Owner View Notice */}
             {String(restaurant.owner_id) === String(user?.id) ? (
-              <div className="mb-8 bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
-                <p className="text-amber-900 font-semibold">
+              <div className="restaurant-detail-owner-notice">
+                <p className="restaurant-detail-owner-notice-title">
                   You're viewing all customer comments for your restaurant.
                 </p>
-                <p className="text-amber-800 text-sm mt-1">
+                <p className="restaurant-detail-owner-notice-message">
                   Use this feedback to improve your restaurant experience.
                 </p>
               </div>
             ) : (
               <>
-                <div className="mb-8">
+                <div className="restaurant-detail-review-form-section">
                   <ReviewForm 
                     restaurantId={restaurantId}
                     restaurantName={restaurant.name}
@@ -132,14 +132,14 @@ const RestaurantDetail = () => {
                     onReviewAdded={(newReview) => setReviews([...reviews, newReview])}
                   />
                 </div>
-                <p className="text-slate-600 text-sm mb-6">
+                <p className="restaurant-detail-review-prompt">
                   See what other diners think about this restaurant before leaving your own rating.
                 </p>
               </>
             )}
 
             {/* Reviews List */}
-            <div className="mt-8">
+            <div className="restaurant-detail-reviews-list-section">
               <ReviewList 
                 reviews={reviews}
                 restaurantId={restaurantId}
