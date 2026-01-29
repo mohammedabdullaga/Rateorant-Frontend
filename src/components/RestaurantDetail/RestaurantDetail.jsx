@@ -38,7 +38,10 @@ const RestaurantDetail = () => {
         console.log('Reviews data fetched:', reviewsData);
         console.log('Reviews data type:', typeof reviewsData);
         console.log('Is array:', Array.isArray(reviewsData));
-        setReviews(reviewsData);
+        
+        // Enrich reviews with user information
+        const enrichedReviews = enrichReviewsWithUserInfo(reviewsData);
+        setReviews(enrichedReviews);
       } catch (err) {
         console.error(err);
         setError('Failed to load restaurant details');
@@ -48,7 +51,7 @@ const RestaurantDetail = () => {
     };
 
     if (restaurantId) fetchData();
-  }, [restaurantId]);
+  }, [restaurantId, user]);
 
   // Generate map preview by geocoding location name
   const generateMapPreviewFromLocation = async (location) => {
@@ -79,6 +82,28 @@ const RestaurantDetail = () => {
     } catch (err) {
       console.error('Error generating map preview:', err);
     }
+  };
+
+  // Enrich reviews with user information
+  const enrichReviewsWithUserInfo = (reviewsData) => {
+    if (!Array.isArray(reviewsData)) return [];
+    
+    return reviewsData.map(review => {
+      // If review already has username, keep it
+      if (review.username) return review;
+      
+      // If current user is the reviewer, add their username
+      if (user && String(review.user_id) === String(user.id)) {
+        return {
+          ...review,
+          username: user.username,
+          user: { username: user.username }
+        };
+      }
+      
+      // For other users, keep user_id (will show fallback "User X" in ReviewList)
+      return review;
+    });
   };
 
   if (loading) return <main className="restaurant-detail-loading"><div className="restaurant-detail-spinner"></div></main>;
@@ -179,7 +204,11 @@ const RestaurantDetail = () => {
                     restaurantId={restaurantId}
                     restaurantName={restaurant.name}
                     restaurantOwnerId={restaurant.owner_id}
-                    onReviewAdded={(newReview) => setReviews([...reviews, newReview])}
+                    onReviewAdded={(newReview) => {
+                      console.log('✅ New review added:', newReview);
+                      const enriched = enrichReviewsWithUserInfo([newReview]);
+                      setReviews([...reviews, enriched[0]]);
+                    }}
                   />
                 </div>
                 <p className="restaurant-detail-review-prompt">

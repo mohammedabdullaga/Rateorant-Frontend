@@ -46,6 +46,16 @@ const ReviewForm = ({ restaurantId, restaurantName, restaurantOwnerId, onReviewA
 
       console.log('✅ Review created successfully:', review);
 
+      // Ensure the review includes user information for display
+      const reviewWithUser = {
+        ...review,
+        username: user.username,
+        user_name: user.username,
+        user: { username: user.username }
+      };
+      
+      console.log('✅ Review enriched with user data:', reviewWithUser);
+
       // Add notification for restaurant owner (via backend)
       console.log('🔍 Checking notification conditions:');
       console.log('   restaurantOwnerId:', restaurantOwnerId, 'type:', typeof restaurantOwnerId);
@@ -66,7 +76,7 @@ const ReviewForm = ({ restaurantId, restaurantName, restaurantOwnerId, onReviewA
       }
 
       setSuccess('Review added successfully!');
-      onReviewAdded(review);
+      onReviewAdded(reviewWithUser);
       setFormData({ rating: 5, comment: '' });
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to add review');
