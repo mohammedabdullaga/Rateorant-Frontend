@@ -128,6 +128,45 @@
   transform: scale(0.98);
 }
 
+.dashboard-favorites-button {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 2px solid #ec4899;
+  background: white;
+  color: #ec4899;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  white-space: nowrap;
+}
+
+.dashboard-favorites-button:hover {
+  background: #fce7f3;
+  border-color: #db2777;
+  color: #db2777;
+  box-shadow: 0 4px 8px rgba(236, 72, 153, 0.2);
+  transform: translateY(-2px);
+}
+
+.dashboard-favorites-button.active {
+  background: linear-gradient(135deg, #ec4899, #db2777);
+  color: white;
+  border-color: #be185d;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+}
+
+.dashboard-favorites-button.active:hover {
+  background: linear-gradient(135deg, #db2777, #be185d);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.5);
+}
+
+.dashboard-favorites-button:active {
+  transform: scale(0.98);
+}
+
 .dashboard-add-button {
   display: inline-block;
 }

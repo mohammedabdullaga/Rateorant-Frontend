@@ -110,6 +110,29 @@
   font-size: 1.125rem;
 }
 
+.restaurant-detail-map-preview {
+  margin-bottom: 2rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.restaurant-detail-map-iframe {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
 .restaurant-detail-description {
   color: #4b5563;
   font-size: 1.125rem;

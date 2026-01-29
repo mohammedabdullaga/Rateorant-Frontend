@@ -33,6 +33,7 @@ const Dashboard = ({ role = 'user' }) => {
   const [selectedRating, setSelectedRating] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [restaurantRatings, setRestaurantRatings] = useState({});
@@ -256,6 +257,16 @@ const Dashboard = ({ role = 'user' }) => {
             <option value="1">1 ⭐ & up</option>
           </select>
 
+          {role === 'user' && (
+            <button 
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              className={`dashboard-favorites-button ${showFavoritesOnly ? 'active' : ''}`}
+              title={showFavoritesOnly ? 'Show all restaurants' : 'Show only favorites'}
+            >
+              {showFavoritesOnly ? '❤️ My Favorites' : '🤍 My Favorites'}
+            </button>
+          )}
+
           {searchQuery && (
             <button onClick={handleSeeAllRestaurants} className="dashboard-see-all-button">
               ✕ See All Restaurants
@@ -269,6 +280,10 @@ const Dashboard = ({ role = 'user' }) => {
             <div className="dashboard-grid">
               {restaurants
                 .filter(r => {
+                  // Filter by favorites if favorites-only mode is on
+                  if (showFavoritesOnly && !favorites.includes(r.id)) {
+                    return false;
+                  }
                   // Filter by search query
                   if (searchQuery && !r.name.toLowerCase().includes(searchQuery.toLowerCase()) && !r.location.toLowerCase().includes(searchQuery.toLowerCase())) {
                     return false;
