@@ -16,6 +16,7 @@ const RestaurantDetail = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [mapPreview, setMapPreview] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +27,11 @@ const RestaurantDetail = () => {
         console.log('🏪 Restaurant data received:', restaurantData);
         console.log('   owner_id:', restaurantData?.owner_id, '(type:', typeof restaurantData?.owner_id + ')');
         setRestaurant(restaurantData);
+
+        // Generate map preview from location
+        if (restaurantData.location) {
+          await generateMapPreviewFromLocation(restaurantData.location);
+        }
 
         // Fetch reviews
         const reviewsData = await reviewService.getReviewsByRestaurant(restaurantId);
@@ -44,8 +50,35 @@ const RestaurantDetail = () => {
     if (restaurantId) fetchData();
   }, [restaurantId]);
 
-  const handleReviewAdded = (newReview) => {
-    setReviews([...reviews, newReview]);
+  // Generate map preview by geocoding location name
+  const generateMapPreviewFromLocation = async (location) => {
+    try {
+      // Use Nominatim (Open Street Map geocoding) - free, no API key needed
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`
+      );
+      const results = await response.json();
+
+      if (!results || results.length === 0) {
+        console.warn('Could not find location on map');
+        return;
+      }
+
+      const { lat, lon } = results[0];
+      const latitude = parseFloat(lat);
+      const longitude = parseFloat(lon);
+
+      // Generate embedded Google Maps URL
+      const googleMapsEmbedUrl = `https://www.google.com/maps?q=${latitude},${longitude}&z=17&output=embed`;
+
+      setMapPreview({
+        url: googleMapsEmbedUrl,
+        latitude,
+        longitude
+      });
+    } catch (err) {
+      console.error('Error generating map preview:', err);
+    }
   };
 
   if (loading) return <main className="restaurant-detail-loading"><div className="restaurant-detail-spinner"></div></main>;
@@ -84,6 +117,23 @@ const RestaurantDetail = () => {
               <span className="restaurant-detail-location-icon">📍</span>
               <p className="restaurant-detail-location-text">{restaurant.location}</p>
             </div>
+
+            {/* Map Preview */}
+            {mapPreview && (
+              <div className="restaurant-detail-map-preview">
+                <iframe
+                  src={mapPreview.url}
+                  width="100%"
+                  height="300"
+                  style={{ border: 0, borderRadius: '0.5rem' }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Restaurant Location Map"
+                  className="restaurant-detail-map-iframe"
+                />
+              </div>
+            )}
 
             {/* Description */}
             <p className="restaurant-detail-description">
