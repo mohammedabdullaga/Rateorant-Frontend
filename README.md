@@ -1,55 +1,62 @@
-# React JWT Auth Template for FastAPI
+# Rateorant
+A full-stack web application that enables users to discover restaurants, submit ratings and reviews, and manage personalized favorite lists. The platform provides an intuitive interface for reviewers to explore restaurants, share feedback through comments and star ratings, and track their favorite dining spots.
 
-A React + Vite frontend template for JWT authentication with a FastAPI backend.
+## Features:
 
-## Setup
+- Sign up for a restaurant and reviewer account.
 
-1. Clone and remove git history:
-```bash
-git clone <repository-url> my-project
-cd my-project
-rm -rf .git
-```
+- Sign in.
 
-2. Initialize a new git repository:
-```bash
-git init
-```
+- Restaurant owners can add and delete restaurants.
 
-3. Install dependencies:
-```bash
-npm install
-```
+- Reviewer can view restaurants.
 
-4. Create your `.env` file:
-```bash
-VITE_BACK_END_SERVER_URL=http://localhost:8000/api
-```
+- Notification functionality.
 
-5. Make your first commit:
-```bash
-git add .
-git commit -m "Initial commit"
-```
+- Favourite functionality
 
-6. Create a new repository on GitHub, then push:
-```bash
-git remote add origin <your-new-repo-url>
-git branch -M main
-git push -u origin main
-```
+## User Stories:  
 
-## Running the App
+1. As a restaurant, I want to create a new account. 
 
-```bash
-npm run dev
-```
+2. As a restaurant, I want to log in to the website. 
 
-The app will run at `http://localhost:5173` by default.
+3. As a restaurant, I want to log out from the website. 
 
-## Scripts
+4. As a restaurant, I want to add restaurants to display on the website. 
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+5. As a restaurant, I want to edit added restaurant.
+
+6. As a restaurant, I want to delete added restaurant.
+
+7. As a reviewer, I want to create a new account. 
+
+8. As a reviewer, I want to log in to the website. 
+
+9. As a reviewer, I want to log out from the website. 
+
+10. As a reviewer, I want to see added restaurants with their descriptions.
+
+11. As a reviewer, I want to add restaurant to favorite.
+
+12. As a reviewer, I want to rate a restaurant.
+
+## ERD:
+
+![mockup picture](/public/Project4.jpg)
+
+## Techonologies Used:
+
+- React
+
+- Python
+
+- PostgreSQL
+
+## Next Step:
+
+- Improve interface
+
+
+
+
