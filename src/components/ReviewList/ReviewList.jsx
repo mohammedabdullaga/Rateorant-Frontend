@@ -61,7 +61,9 @@ const ReviewList = ({ reviews, restaurantId, onReviewsUpdated, isOwner = false }
       <h3 className="review-list-header">Reviews ({reviews.length})</h3>
       
       <div className="review-list">
-        {reviews.map(review => (
+        {reviews.map(review => {
+          console.log('📝 Rendering review:', { id: review.id, username: review.username, user_id: review.user_id, user: review.user });
+          return (
           <div 
             key={review.id} 
             className={`review-item ${isOwner ? 'owner-review' : ''}`}
@@ -74,11 +76,9 @@ const ReviewList = ({ reviews, restaurantId, onReviewsUpdated, isOwner = false }
                 <p className="review-item-score">
                   Rating: {review.rating} / 5
                 </p>
-                {isOwner && (
-                  <p className="review-item-user-id">
-                    User ID: {review.user_id}
-                  </p>
-                )}
+                <p className="review-item-commenter">
+                  By: <strong>{review.username || review.user?.username || `User ${review.user_id}`}</strong>
+                </p>
               </div>
               <time className="review-item-date">
                 {formatDate(review.created_at)}
@@ -105,7 +105,8 @@ const ReviewList = ({ reviews, restaurantId, onReviewsUpdated, isOwner = false }
               </div>
             )}
           </div>
-        ))}
+        );
+        })}
       </div>
 
       {/* Delete Confirmation Modal */}
