@@ -57,6 +57,8 @@ A full-stack web application that enables users to discover restaurants, submit 
 
 - Improve interface
 
+- Add restaurant menu
+
 
 
 
